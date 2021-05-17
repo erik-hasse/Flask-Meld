@@ -1,4 +1,6 @@
 import ast
+from collections import defaultdict
+import functools
 
 from .component import get_component_class
 from flask import jsonify
@@ -6,6 +8,9 @@ import orjson
 
 
 def process_message(message):
+    return [handler(message) for handler in message_handlers[message["event"]]]
+
+def process_base_message(message):
     meld_id = message["id"]
     component_name = message["componentName"]
     action_queue = message["actionQueue"]
@@ -73,3 +78,17 @@ def parse_call_method_name(call_method_name: str):
                 params = list(map(str.strip, params_str.split(",")))
 
     return method_name, params
+
+message_handlers = defaultdict(list, {"meld-event": [process_base_message]})
+
+def listener(event_name):
+    def dec(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            return f(*args, **kwargs)
+
+        wrapper._meld_event_name = event_name
+        message_handlers[event_name].append(wrapper)
+        return wrapper
+    return dec
+

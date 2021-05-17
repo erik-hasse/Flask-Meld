@@ -90,6 +90,12 @@ class Component:
     def __repr__(self):
         return f"<meld.Component {self.__class__.__name__}>"
 
+    def __init_subclass__(cls, **kwargs):
+        cls._listeners = [
+            (func._meld_event_name, func) for func in cls.__dict__.values()
+            if hasattr(func, '_meld_event_name')
+        ]
+
     @property
     def _meld_attrs(self):
         """
@@ -268,6 +274,9 @@ class Component:
     def _desoupify(soup):
         soup.smooth()
         return soup.encode(formatter=UnsortedAttributes()).decode("utf-8")
+
+    def emit(self, event_name):
+        print('emitting')
 
 
 class UnsortedAttributes(HTMLFormatter):
