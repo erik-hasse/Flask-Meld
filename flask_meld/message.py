@@ -8,9 +8,10 @@ import orjson
 
 
 def process_message(message):
+    print(message_handlers)
     return [handler(message) for handler in message_handlers[message["event"]]]
 
-def process_base_message(message):
+def process_event(message):
     meld_id = message["id"]
     component_name = message["componentName"]
     action_queue = message["actionQueue"]
@@ -57,6 +58,15 @@ def process_base_message(message):
     }
     return res
 
+def process_init(message):
+    meld_id = message["id"]
+    component_name = message["componentName"]
+    action_queue = message["actionQueue"]
+
+    data = message["data"]
+    Component = get_component_class(component_name)
+    ## TODO: append Component._listeners to message_handlers
+
 
 def parse_call_method_name(call_method_name: str):
     params = None
@@ -79,7 +89,7 @@ def parse_call_method_name(call_method_name: str):
 
     return method_name, params
 
-message_handlers = defaultdict(list, {"meld-event": [process_base_message]})
+message_handlers = defaultdict(list, {"meld-event": [process_event]})
 
 def listener(event_name):
     def dec(f):
@@ -88,7 +98,6 @@ def listener(event_name):
             return f(*args, **kwargs)
 
         wrapper._meld_event_name = event_name
-        message_handlers[event_name].append(wrapper)
         return wrapper
     return dec
 

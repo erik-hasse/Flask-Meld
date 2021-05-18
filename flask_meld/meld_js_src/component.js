@@ -115,7 +115,7 @@ export class Component {
               event.preventDefault();
             }
 
- :q           if (action.isStop) {
+            if (action.isStop) {
               event.stopPropagation();
             }
             var method = { type: "callMethod", payload: { name: action.name } };
@@ -152,6 +152,7 @@ export class Component {
    */
   init() {
     this.root = $(`[meld\\:id="${this.id}"]`, this.document);
+    sendMessage(this, 'meld-init')
 
     if (!this.root) {
       throw Error("No id found");

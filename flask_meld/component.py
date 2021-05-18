@@ -1,3 +1,5 @@
+from collections import groupby
+from operator import itemgetter
 import os
 import uuid
 from importlib.util import module_from_spec, spec_from_file_location
@@ -91,10 +93,14 @@ class Component:
         return f"<meld.Component {self.__class__.__name__}>"
 
     def __init_subclass__(cls, **kwargs):
-        cls._listeners = [
+        listeners = [
             (func._meld_event_name, func) for func in cls.__dict__.values()
             if hasattr(func, '_meld_event_name')
         ]
+        cls._listeners = {
+            event_name: [t[1] for t in group]
+            for event_name, group in groupby(listeners, itemgetter(0))
+        }
 
     @property
     def _meld_attrs(self):

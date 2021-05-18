@@ -2,7 +2,8 @@ export var socketio = io();
 /*
     Handles calling the message endpoint and merging the results into the document.
     */
-export function sendMessage(component) {
+export function sendMessage(component, eventName) {
+  console.log(eventName)
   // Prevent network call when there isn't an action
   if (component.actionQueue.length === 0) {
     return;
@@ -16,7 +17,7 @@ export function sendMessage(component) {
   component.currentActionQueue = component.actionQueue;
   component.actionQueue = [];
 
-  socketio.emit('meld-message', {'id': component.id, 'actionQueue': component.currentActionQueue, 'componentName': component.name, 'data': component.data, 'event': 'meld-event'});
+  socketio.emit('meld-message', {'id': component.id, 'actionQueue': component.currentActionQueue, 'componentName': component.name, 'data': component.data, 'event': eventName});
 }
 
 /*
