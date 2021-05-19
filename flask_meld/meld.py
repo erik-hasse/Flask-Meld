@@ -47,9 +47,3 @@ class Meld:
             """meldID, action, componentName"""
             result = process_message(message)
             app.socketio.emit("meld-response", result)
-
-        @app.socketio.on("meld-event")
-        def meld_event(message):
-            """meldID, action, componentName"""
-            result = process_message(message)
-            app.socketio.emit("meld-response", result)

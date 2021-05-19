@@ -1,4 +1,4 @@
-import {$, walk, hasValue, isEmpty, sendMessage, print, debounce} from "./utils.js";
+import {$, walk, hasValue, isEmpty, sendMessage, print, debounce, socketio} from "./utils.js";
 import { Element } from "./element.js";
 
 export class Component {
@@ -152,7 +152,7 @@ export class Component {
    */
   init() {
     this.root = $(`[meld\\:id="${this.id}"]`, this.document);
-    sendMessage(this, 'meld-init')
+    socketio.emit('meld-message', {'componentName': this.name, 'event': 'meld-init'})
 
     if (!this.root) {
       throw Error("No id found");

@@ -1,4 +1,4 @@
-from collections import groupby
+from itertools import groupby
 from operator import itemgetter
 import os
 import uuid
@@ -97,7 +97,7 @@ class Component:
             (func._meld_event_name, func) for func in cls.__dict__.values()
             if hasattr(func, '_meld_event_name')
         ]
-        cls._listeners = {
+        cls.listeners = {
             event_name: [t[1] for t in group]
             for event_name, group in groupby(listeners, itemgetter(0))
         }
@@ -107,7 +107,7 @@ class Component:
         """
         A list of meld variables and functions that are hidden from the view
         """
-        return ["id", "render", "validate", "updated", "form"]
+        return ["id", "render", "validate", "updated", "form", "listeners"]
 
     def _bind_form(self, kwargs):
         """
@@ -282,7 +282,7 @@ class Component:
         return soup.encode(formatter=UnsortedAttributes()).decode("utf-8")
 
     def emit(self, event_name):
-        print('emitting')
+        print(f'emitting {event_name} from {self}')
 
 
 class UnsortedAttributes(HTMLFormatter):
