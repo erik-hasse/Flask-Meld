@@ -281,8 +281,6 @@ class Component:
         soup.smooth()
         return soup.encode(formatter=UnsortedAttributes()).decode("utf-8")
 
-    def emit(self, event_name):
-        print(f'emitting {event_name} from {self}')
 
 
 class UnsortedAttributes(HTMLFormatter):

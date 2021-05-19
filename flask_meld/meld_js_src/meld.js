@@ -54,6 +54,11 @@ export var Meld = (function () {
         components[responseJson.id].refreshEventListeners()
       }
     });
+
+    socketio.on('meld-event', function(payload) {
+      socketio.emit('meld-message', payload)
+
+    });
   }
 
 function updateData(component, newData){

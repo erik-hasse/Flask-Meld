@@ -3,7 +3,7 @@ from collections import defaultdict
 import functools
 
 from .component import get_component_class
-from flask import jsonify
+from flask import jsonify, current_app
 import orjson
 
 
@@ -103,3 +103,7 @@ def listener(event_name):
         return wrapper
     return dec
 
+
+def emit(event_name, message=None):
+    print(f'emitting {event_name}')
+    current_app.socketio.emit("meld-event", {"event": event_name, "message": message})
