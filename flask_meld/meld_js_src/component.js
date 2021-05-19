@@ -73,18 +73,6 @@ export class Component {
     });
   }
 
-  addCustomEventListener(component, el, eventType) {
-    el.addEventListener(eventType, (event) => {
-      const element = new Element(event.target);
-
-      var method = { type: "callMethod", payload: { name: action.name } };
-
-      this.actionQueue.push(method);
-      this.queueMessage(element.model);
-
-    });
-  }
-
   /**
   * Adds an action event listener to the document for each type of event (e.g. click, keyup, etc).
   * Added at the document level because validation errors would sometimes remove the
