@@ -182,9 +182,11 @@ export class Component {
       if (element.isMeld) {
 
         if (listeners && listeners.length && Array.isArray(listeners)) {
-          if (!this.attachedCustomEvents.some((e) => e.isSame(element))) {
-            this.attachedCustomEvents.push(element);
-            this.addCustomEventListener(this, element.el, "set-state")
+          for (var listener of listeners){
+            if (!this.attachedCustomEvents.length || !this.attachedCustomEvents.includes(listener)) {
+              this.attachedCustomEvents.push(listener);
+              this.addCustomEventListener(this, element.el, listener)
+            }
           }
         }
 
