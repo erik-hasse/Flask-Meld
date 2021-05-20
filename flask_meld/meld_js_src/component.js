@@ -87,11 +87,6 @@ export class Component {
     });
   }
 
-  dispatchCustomEvent(component, el){
-    var event = new CustomEvent("set-state")
-    component.dispatchEvent(event)
-  }
-
   /**
   * Adds an action event listener to the document for each type of event (e.g. click, keyup, etc).
   * Added at the document level because validation errors would sometimes remove the
@@ -180,7 +175,6 @@ export class Component {
       const element = new Element(el);
 
       if (element.isMeld) {
-
         if (listeners && listeners.length && Array.isArray(listeners)) {
           for (var listener of listeners){
             if (!this.attachedCustomEvents.length || !this.attachedCustomEvents.includes(listener)) {

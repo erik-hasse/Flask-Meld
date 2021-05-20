@@ -53,7 +53,7 @@ export var Meld = (function () {
     });
 
     socketio.on('meld-event', function(payload) {
-      var event = new CustomEvent("set-state")
+      var event = new CustomEvent(payload.event)
       document.dispatchEvent(event)
       print("dispatching custom event")
     });
