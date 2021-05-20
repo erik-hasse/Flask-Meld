@@ -60,7 +60,7 @@ export class Component {
   addModelEventListener(component, el, eventType) {
     el.addEventListener(eventType, (event) => {
       const element = new Element(event.target);
- 
+
       const action = {
         type: "syncInput",
         payload: {
@@ -71,6 +71,24 @@ export class Component {
 
       this.checkComponentDefer(element, action);
     });
+  }
+
+  addCustomEventListener(component, el, eventType) {
+    print("adding custom event listener", event.target)
+
+    component.document.addEventListener(eventType, (event) => {
+      print("WERE DOING IT")
+      const element = new Element(event.target);
+
+      var method = { type: "callMethod", payload: { name: "set-state" } };
+      this.actionQueue.push(method);
+      this.queueMessage(element.model);
+    });
+  }
+
+  dispatchCustomEvent(component, el){
+    var event = new CustomEvent("set-state")
+    component.dispatchEvent(event)
   }
 
   /**
@@ -147,7 +165,7 @@ export class Component {
     }
   }
 
-  refreshEventListeners() {
+  refreshEventListeners(listeners) {
     this.actionEvents = {};
     this.modelEls = [];
     this.dbEls = [];
@@ -161,6 +179,10 @@ export class Component {
       const element = new Element(el);
 
       if (element.isMeld) {
+        if (listeners && listeners.length && Array.isArray(listeners)) {
+          this.addCustomEventListener(this, element.el, "set-state")
+        }
+
         if (
           hasValue(element.field) &&
           (hasValue(element.db) || hasValue(element.model))

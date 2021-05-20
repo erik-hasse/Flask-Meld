@@ -8,11 +8,6 @@ import orjson
 
 
 def process_message(message):
-    print(message_handlers)
-    print(message)
-    return [handler(message) for handler in message_handlers[message["event"]]]
-
-def process_event(message):
     meld_id = message["id"]
     component_name = message["componentName"]
     action_queue = message["actionQueue"]
@@ -37,7 +32,7 @@ def process_event(message):
                     component.updated(payload["name"])
 
         elif "callMethod" in action["type"]:
-            call_method_name = payload.get("name", "")
+            call_method_name = payload.get("name", "").replace("-", "_")
             method_name, params = parse_call_method_name(call_method_name)
 
             if method_name is not None and hasattr(component, method_name):
@@ -56,15 +51,9 @@ def process_event(message):
         "id": meld_id,
         "dom": rendered_component,
         "data": orjson.dumps(jsonify(component._attributes()).json).decode("utf-8"),
+        "listeners": [*component.listeners.keys()]
     }
     return res
-
-def process_init(message):
-    component_name = message["componentName"]
-    Component = get_component_class(component_name)
-
-    for event_name, event_listeners in Component.listeners.items():
-        message_handlers[event_name] += event_listeners
 
 
 def parse_call_method_name(call_method_name: str):
@@ -88,10 +77,6 @@ def parse_call_method_name(call_method_name: str):
 
     return method_name, params
 
-message_handlers = defaultdict(list, {
-    "meld-event": [process_event],
-    "meld-init": [process_init],
-})
 
 def listener(event_name):
     def dec(f):
