@@ -28,6 +28,7 @@ export class Component {
     this.actionEvents = {};
     this.attachedEventTypes = [];
     this.attachedModelEvents = [];
+    this.attachedCustomEvents = [];
 
     this.init();
     this.refreshEventListeners();
@@ -179,8 +180,12 @@ export class Component {
       const element = new Element(el);
 
       if (element.isMeld) {
+
         if (listeners && listeners.length && Array.isArray(listeners)) {
-          this.addCustomEventListener(this, element.el, "set-state")
+          if (!this.attachedCustomEvents.some((e) => e.isSame(element))) {
+            this.attachedCustomEvents.push(element);
+            this.addCustomEventListener(this, element.el, "set-state")
+          }
         }
 
         if (
