@@ -78,7 +78,7 @@ export class Component {
     print("adding custom event listener", event.target)
 
     component.document.addEventListener(eventType, (event) => {
-      print("WERE DOING IT")
+      print("custom event listener called")
       const element = new Element(event.target);
 
       var method = { type: "callMethod", payload: { name: "set-state" } };
