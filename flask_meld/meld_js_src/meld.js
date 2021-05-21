@@ -52,7 +52,7 @@ export var Meld = (function () {
     });
 
     socketio.on('meld-event', function(payload) {
-      var event = new CustomEvent(payload.event)
+      var event = new CustomEvent(payload.event, { detail: payload.message })
       document.dispatchEvent(event)
       print("dispatching custom event")
     });

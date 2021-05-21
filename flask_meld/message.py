@@ -34,12 +34,15 @@ def process_message(message):
         elif "callMethod" in action["type"]:
             call_method_name = payload.get("name", "")
             method_name, params = parse_call_method_name(call_method_name)
+            message = payload.get("message")
 
             if method_name is not None and hasattr(component, method_name):
                 func = getattr(component, method_name)
 
                 if params:
                     func(*params)
+                elif message:
+                    func(message)
                 else:
                     func()
                 if component._form:

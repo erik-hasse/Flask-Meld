@@ -81,7 +81,7 @@ export class Component {
       print("custom event listener called")
       const element = new Element(event.target);
 
-      var method = { type: "callMethod", payload: { name: funcName } };
+      var method = { type: "callMethod", payload: { name: funcName, message: event.detail } };
       this.actionQueue.push(method);
       this.queueMessage(element.model);
     });
