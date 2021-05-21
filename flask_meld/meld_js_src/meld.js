@@ -49,6 +49,7 @@ export var Meld = (function () {
       }
       var componentRoot = $('[meld\\:id="' + responseJson.id + '"]');
       morphdom(componentRoot, dom, morphdomOptions);
+      components[responseJson.id].refreshEventListeners()
     });
 
     socketio.on('meld-event', function(payload) {

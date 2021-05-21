@@ -1,5 +1,4 @@
 import ast
-from collections import defaultdict
 import functools
 
 from .component import get_component_class
@@ -62,7 +61,7 @@ def process_init(message):
     component_name = message["componentName"]
     Component = get_component_class(component_name)
 
-    return Component.listeners
+    return Component.get_listeners()
 
 
 def parse_call_method_name(call_method_name: str):

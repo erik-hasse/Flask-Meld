@@ -92,12 +92,13 @@ class Component:
     def __repr__(self):
         return f"<meld.Component {self.__class__.__name__}>"
 
-    def __init_subclass__(cls, **kwargs):
+    @classmethod
+    def get_listeners(cls):
         listeners = [
             (func._meld_event_name, func) for func in cls.__dict__.values()
             if hasattr(func, '_meld_event_name')
         ]
-        cls.listeners = {
+        return {
             event_name: [t[1].__name__ for t in group]
             for event_name, group in groupby(listeners, itemgetter(0))
         }
@@ -107,7 +108,7 @@ class Component:
         """
         A list of meld variables and functions that are hidden from the view
         """
-        return ["id", "render", "validate", "updated", "form", "listeners"]
+        return ["id", "render", "validate", "updated", "form"]
 
     def _bind_form(self, kwargs):
         """
@@ -280,7 +281,6 @@ class Component:
     def _desoupify(soup):
         soup.smooth()
         return soup.encode(formatter=UnsortedAttributes()).decode("utf-8")
-
 
 
 class UnsortedAttributes(HTMLFormatter):

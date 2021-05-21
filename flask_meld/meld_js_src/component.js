@@ -74,19 +74,6 @@ export class Component {
     });
   }
 
-  addCustomEventListener(eventName, funcName) {
-    print("adding custom event listener", eventName, "calling", funcName)
-
-    this.document.addEventListener(eventName, (event) => {
-      print("custom event listener called")
-      const element = new Element(event.target);
-
-      var method = { type: "callMethod", payload: { name: funcName, message: event.detail } };
-      this.actionQueue.push(method);
-      this.queueMessage(element.model);
-    });
-  }
-
   /**
   * Adds an action event listener to the document for each type of event (e.g. click, keyup, etc).
   * Added at the document level because validation errors would sometimes remove the
@@ -138,6 +125,20 @@ export class Component {
     });
   }
 
+  addCustomEventListener(eventName, funcName) {
+    print("adding custom event listener", eventName, "calling", funcName)
+
+    this.document.addEventListener(eventName, (event) => {
+      print("custom event listener called")
+      const element = new Element(event.target);
+
+      var method = { type: "callMethod", payload: { name: funcName, message: event.detail } };
+      this.actionQueue.push(method);
+      this.queueMessage(element.model);
+    });
+  }
+
+
   queueMessage(model, callback) {
     this.activeDebouncers += 1
     if (model.debounceTime === -1) {
@@ -158,16 +159,11 @@ export class Component {
     if (!this.root) {
       throw Error("No id found");
     }
-  }
-
-  refreshEventListeners() {
-    this.actionEvents = {};
-    this.modelEls = [];
-    this.dbEls = [];
 
     // Add the custom listeners from the python class
     function addListeners(component, response) {
       Object.entries(response).forEach(([eventName, funcNames]) => {
+        component.attachedCustomEvents.push(eventName)
         funcNames.forEach((funcName) => {
           component.addCustomEventListener(eventName, funcName)
         })
@@ -178,6 +174,12 @@ export class Component {
       'meld-init', {'componentName': this.name},
       (response) => addListeners(this, response)
     )
+  }
+
+  refreshEventListeners() {
+    this.actionEvents = {};
+    this.modelEls = [];
+    this.dbEls = [];
 
     walk(this.root, (el) => {
       if (el.isSameNode(this.root)) {
@@ -188,7 +190,6 @@ export class Component {
       const element = new Element(el);
 
       if (element.isMeld) {
-
         if (
           hasValue(element.field) &&
           (hasValue(element.db) || hasValue(element.model))

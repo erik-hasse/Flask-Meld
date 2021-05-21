@@ -5,13 +5,11 @@ export var socketio = io();
 export function sendMessage(component) {
   // Prevent network call when there isn't an action
   if (component.actionQueue.length === 0) {
-    console.log('empty queue')
     return;
   }
 
   // Prevent network call when the action queue gets repeated
   if (component.currentActionQueue === component.actionQueue) {
-    console.log('current queue = action queue')
     return;
   }
 
