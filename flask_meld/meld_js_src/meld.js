@@ -16,48 +16,46 @@ export var Meld = (function () {
   meld.init = function (_messageUrl) {
     messageUrl = _messageUrl;
 
-    socketio.on('meld-response', function(responseJsons) {
-      for (let pos in responseJsons) {
-        var responseJson = responseJsons[pos]
-        if (!responseJson) {
-          return
-        }
-
-        if (responseJson.error) {
-          console.error(responseJson.error);
-          return
-        }
-        if (!components[responseJson.id])
-          return
-        else if(components[responseJson.id].actionQueue.length > 0)
-          return
-
-
-        updateData(components[responseJson.id], responseJson.data);
-        var dom = responseJson.dom;
-
-        var morphdomOptions = {
-          childrenOnly: false,
-          getNodeKey: function (node) {
-            // A node's unique identifier. Used to rearrange elements rather than
-            // creating and destroying an element that already exists.
-            if (node.attributes) {
-              var key = node.getAttribute("meld:key") || node.id;
-              if (key) {
-                return key;
-              }
-            }
-          },
-        }
-        var componentRoot = $('[meld\\:id="' + responseJson.id + '"]');
-        morphdom(componentRoot, dom, morphdomOptions);
-        components[responseJson.id].refreshEventListeners()
+    socketio.on('meld-response', function(responseJson) {
+      if (!responseJson) {
+        return
       }
+
+      if (responseJson.error) {
+        console.error(responseJson.error);
+        return
+      }
+      if (!components[responseJson.id])
+        return
+      else if(components[responseJson.id].actionQueue.length > 0)
+        return
+
+
+      updateData(components[responseJson.id], responseJson.data);
+      var dom = responseJson.dom;
+
+      var morphdomOptions = {
+        childrenOnly: false,
+        getNodeKey: function (node) {
+          // A node's unique identifier. Used to rearrange elements rather than
+          // creating and destroying an element that already exists.
+          if (node.attributes) {
+            var key = node.getAttribute("meld:key") || node.id;
+            if (key) {
+              return key;
+            }
+          }
+        },
+      }
+      var componentRoot = $('[meld\\:id="' + responseJson.id + '"]');
+      morphdom(componentRoot, dom, morphdomOptions);
+      components[responseJson.id].refreshEventListeners(responseJson.listeners)
     });
 
     socketio.on('meld-event', function(payload) {
-      socketio.emit('meld-message', payload)
-
+      var event = new CustomEvent(payload.event)
+      document.dispatchEvent(event)
+      print("dispatching custom event")
     });
   }
 
