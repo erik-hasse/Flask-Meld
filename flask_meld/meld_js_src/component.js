@@ -54,7 +54,7 @@ export class Component {
       }
     else{
       this.actionQueue.push(action);
-      this.queueMessage(element.model, "meld-event");
+      this.queueMessage(element.model);
     }
   }
 
@@ -74,14 +74,14 @@ export class Component {
     });
   }
 
-  addCustomEventListener(component, el, eventType) {
-    print("adding custom event listener", event.target)
+  addCustomEventListener(eventName, funcName) {
+    print("adding custom event listener", eventName, "calling", funcName)
 
-    component.document.addEventListener(eventType, (event) => {
+    this.document.addEventListener(eventName, (event) => {
       print("custom event listener called")
       const element = new Element(event.target);
 
-      var method = { type: "callMethod", payload: { name: "set-state" } };
+      var method = { type: "callMethod", payload: { name: funcName } };
       this.actionQueue.push(method);
       this.queueMessage(element.model);
     });
@@ -126,11 +126,11 @@ export class Component {
             if (action.key) {
               if (action.key === event.key.toLowerCase()) {
                 this.actionQueue.push(method);
-                this.queueMessage(element.model, "meld-event");
+                this.queueMessage(element.model);
               }
             } else {
                 this.actionQueue.push(method);
-                this.queueMessage(element.model, "meld-event");
+                this.queueMessage(element.model);
             }
           }
         });
@@ -138,12 +138,12 @@ export class Component {
     });
   }
 
-  queueMessage(model, callback, eventName) {
+  queueMessage(model, callback) {
     this.activeDebouncers += 1
     if (model.debounceTime === -1) {
-      debounce(sendMessage, 150, this, false)(this, callback, eventName);
+      debounce(sendMessage, 150, this, false)(this, callback);
     } else {
-      debounce(sendMessage, model.debounceTime, this, false)(this, callback, eventName);
+      debounce(sendMessage, model.debounceTime, this, false)(this, callback);
     }
   }
 
@@ -154,17 +154,30 @@ export class Component {
    */
   init() {
     this.root = $(`[meld\\:id="${this.id}"]`, this.document);
-    socketio.emit('meld-message', {'componentName': this.name, 'event': 'meld-init'})
 
     if (!this.root) {
       throw Error("No id found");
     }
   }
 
-  refreshEventListeners(listeners) {
+  refreshEventListeners() {
     this.actionEvents = {};
     this.modelEls = [];
     this.dbEls = [];
+
+    // Add the custom listeners from the python class
+    function addListeners(component, response) {
+      Object.entries(response).forEach(([eventName, funcNames]) => {
+        funcNames.forEach((funcName) => {
+          component.addCustomEventListener(eventName, funcName)
+        })
+      })
+    }
+
+    socketio.emit(
+      'meld-init', {'componentName': this.name},
+      (response) => addListeners(this, response)
+    )
 
     walk(this.root, (el) => {
       if (el.isSameNode(this.root)) {
@@ -175,14 +188,6 @@ export class Component {
       const element = new Element(el);
 
       if (element.isMeld) {
-        if (listeners && listeners.length && Array.isArray(listeners)) {
-          for (var listener of listeners){
-            if (!this.attachedCustomEvents.length || !this.attachedCustomEvents.includes(listener)) {
-              this.attachedCustomEvents.push(listener);
-              this.addCustomEventListener(this, element.el, listener)
-            }
-          }
-        }
 
         if (
           hasValue(element.field) &&

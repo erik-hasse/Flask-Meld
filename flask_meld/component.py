@@ -98,7 +98,7 @@ class Component:
             if hasattr(func, '_meld_event_name')
         ]
         cls.listeners = {
-            event_name: [t[1] for t in group]
+            event_name: [t[1].__name__ for t in group]
             for event_name, group in groupby(listeners, itemgetter(0))
         }
 

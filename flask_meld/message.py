@@ -32,7 +32,7 @@ def process_message(message):
                     component.updated(payload["name"])
 
         elif "callMethod" in action["type"]:
-            call_method_name = payload.get("name", "").replace("-", "_")
+            call_method_name = payload.get("name", "")
             method_name, params = parse_call_method_name(call_method_name)
 
             if method_name is not None and hasattr(component, method_name):
@@ -51,9 +51,15 @@ def process_message(message):
         "id": meld_id,
         "dom": rendered_component,
         "data": orjson.dumps(jsonify(component._attributes()).json).decode("utf-8"),
-        "listeners": [*component.listeners.keys()]
     }
     return res
+
+
+def process_init(message):
+    component_name = message["componentName"]
+    Component = get_component_class(component_name)
+
+    return Component.listeners
 
 
 def parse_call_method_name(call_method_name: str):
