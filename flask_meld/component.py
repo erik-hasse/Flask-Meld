@@ -95,11 +95,12 @@ class Component:
     @classmethod
     def get_listeners(cls):
         listeners = [
-            (func._meld_event_name, func) for func in cls.__dict__.values()
-            if hasattr(func, '_meld_event_name')
+            (event_name, func.__name__) for func in cls.__dict__.values()
+            if hasattr(func, '_meld_event_names')
+            for event_name in func._meld_event_names
         ]
         return {
-            event_name: [t[1].__name__ for t in group]
+            event_name: [t[1] for t in group]
             for event_name, group in groupby(listeners, itemgetter(0))
         }
 

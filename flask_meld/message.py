@@ -41,7 +41,7 @@ def process_message(message):
                 if params:
                     func(*params)
                 elif message:
-                    func(message)
+                    func(**message)
                 else:
                     func()
                 if component._form:
@@ -86,17 +86,12 @@ def parse_call_method_name(call_method_name: str):
     return method_name, params
 
 
-def listener(event_name):
-    def dec(f):
-        @functools.wraps(f)
-        def wrapper(*args, **kwargs):
-            return f(*args, **kwargs)
-
-        wrapper._meld_event_name = event_name
-        return wrapper
+def listen(*event_names):
+    def dec(func):
+        func._meld_event_names = event_names
+        return func
     return dec
 
 
-def emit(event_name, message=None):
-    print(f'emitting {event_name}')
-    current_app.socketio.emit("meld-event", {"event": event_name, "message": message})
+def emit(event_name, **kwargs):
+    current_app.socketio.emit("meld-event", {"event": event_name, "message": kwargs})
