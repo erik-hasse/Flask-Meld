@@ -126,12 +126,8 @@ export class Component {
   }
 
   addCustomEventListener(eventName, funcName) {
-    print("adding custom event listener", eventName, "calling", funcName)
-
     this.document.addEventListener(eventName, (event) => {
-      print("custom event listener called")
       const element = new Element(event.target);
-
       var method = { type: "callMethod", payload: { name: funcName, message: event.detail } };
       this.actionQueue.push(method);
       this.queueMessage(element.model);
