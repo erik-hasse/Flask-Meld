@@ -125,6 +125,11 @@ export class Component {
     });
   }
 
+  /**
+  * Adds a custom event listener to the document for the given eventName.
+  * @param {string} eventName Name of the custom meld-event to be listened for
+  * @param {string} funcName Name of the method to call on the Python Component
+  */
   addCustomEventListener(eventName, funcName) {
     this.document.addEventListener(eventName, (event) => {
       const element = new Element(event.target);
@@ -134,7 +139,6 @@ export class Component {
     });
   }
 
-
   queueMessage(model, callback) {
     this.activeDebouncers += 1
     if (model.debounceTime === -1) {
@@ -143,8 +147,6 @@ export class Component {
       debounce(sendMessage, model.debounceTime, this, false)(this, callback);
     }
   }
-
-
 
   /**
    * Initializes the Component.
@@ -157,6 +159,9 @@ export class Component {
     }
 
     // Add the custom listeners from the python class
+    // This separate helper function is needed because "this" doesn't
+    // work in the socketio.emit callback (it refers to the socketio
+    // object).
     function addListeners(component, response) {
       Object.entries(response).forEach(([eventName, funcNames]) => {
         component.attachedCustomEvents.push(eventName)

@@ -93,7 +93,10 @@ class Component:
         return f"<meld.Component {self.__class__.__name__}>"
 
     @classmethod
-    def get_listeners(cls):
+    def _listeners(cls):
+        """
+        Dictionary containing all listeners and the methods they call
+        """
         listeners = [
             (event_name, func.__name__) for func in cls.__dict__.values()
             if hasattr(func, '_meld_event_names')
