@@ -167,7 +167,7 @@ export class Component {
     }
 
     socketio.emit(
-      'meld-init', {'componentName': this.name},
+      'meld-init', this.name,
       (response) => addListeners(this, response)
     )
   }

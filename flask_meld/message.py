@@ -57,10 +57,8 @@ def process_message(message):
     return res
 
 
-def process_init(message):
-    component_name = message["componentName"]
+def process_init(component_name):
     Component = get_component_class(component_name)
-
     return Component.get_listeners()
 
 
